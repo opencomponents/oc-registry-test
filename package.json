@@ -1,0 +1,30 @@
+{
+  "name": "oc-registry-test",
+  "version": "1.0.0",
+  "description": "An utility to test an OpenComponent Registry is setup and secured correctly",
+  "bin": {
+    "oc-migrate": "./cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opentable/oc-registry-test.git"
+  },
+  "keywords": [
+    "OC",
+    "OpenComponents",
+    "Open",
+    "Components",
+    "Registry"
+  ],
+  "author": "Matteo Figus",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/opentable/oc-registry-test/issues"
+  },
+  "homepage": "https://github.com/opentable/oc-registry-test#readme",
+  "dependencies": {
+    "chai": "^3.5.0",
+    "minimal-request": "^2.1.1",
+    "mocha": "^3.1.2"
+  }
+}
