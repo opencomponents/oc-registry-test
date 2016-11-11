@@ -12,26 +12,21 @@ const getParams = () => {
   return (process.argv[2]);
 };
 
-const getRegistryVersion = (registryUrl, cb) => {
-  request({
-    url: registryUrl,
-    json: true
-  }, (err, response) => err ? cb(`Unable to connect to registry: ${err}`) : cb(err, response.ocVersion));
-};
-
 let url = getParams();
 
 if(url.slice(-1) !== '/'){
   url = `${url}/`;
 }
 
+const timeout = 20000;
+const json = true;
+
 describe(`When connecting to registry ${url}`, () => {
 
   it('should connect via http', (done) => {
     
     request({
-      json: true,
-      timeout: 20000,
+      json, timeout,
       url: url.replace('https://', 'http://')
     }, (err, res) => {
       expect(err).to.be.null;
@@ -43,8 +38,7 @@ describe(`When connecting to registry ${url}`, () => {
   it('should connect via https', (done) => {
     
     request({
-      json: true,
-      timeout: 20000,
+      json, timeout,
       url: url.replace('http://', 'https://')
     }, (err, res) => {
       expect(err).to.be.null;
@@ -56,8 +50,7 @@ describe(`When connecting to registry ${url}`, () => {
   it('should be able to serve rendered components', (done) => {
     
     request({
-      json: true,
-      timeout: 20000,
+      json, timeout,
       url: `${url}oc-client`
     }, (err, res) => {
       expect(err).to.be.null;
@@ -69,11 +62,10 @@ describe(`When connecting to registry ${url}`, () => {
   it('should be able to serve unrendered components', (done) => {
     
     request({
-      json: true,
+      json, timeout,
       headers: {
         'accept': 'application/vnd.oc.unrendered+json'
       },
-      timeout: 20000,
       url: `${url}oc-client`
     }, (err, res) => {
       expect(err).to.be.null;
@@ -88,11 +80,10 @@ describe(`When connecting to registry ${url}`, () => {
 
     beforeEach((done) => {
       request({
-        json: true,
+        json, timeout,
         headers: {
           'accept': 'application/vnd.oc.unrendered+json'
         },
-        timeout: 20000,
         url: `${url}oc-client`
       }, (err, res) => {
         ocClientVersion = res.version;
@@ -103,8 +94,7 @@ describe(`When connecting to registry ${url}`, () => {
 
     it('should connect via http', (done) => {
       request({
-        json: true,
-        timeout: 20000,
+        json, timeout,
         url: `http:${cdnUrl}oc-client/${ocClientVersion}/package.json`
       }, (err, res) => {
         expect(err).to.be.null;
@@ -115,8 +105,7 @@ describe(`When connecting to registry ${url}`, () => {
 
     it('should connect via https', (done) => {
       request({
-        json: true,
-        timeout: 20000,
+        json, timeout,
         url: `https:${cdnUrl}oc-client/${ocClientVersion}/package.json`
       }, (err, res) => {
         expect(err).to.be.null;
@@ -127,7 +116,7 @@ describe(`When connecting to registry ${url}`, () => {
 
     it('should not be able to access protected source-code', (done) => {
       request({
-        timeout: 20000,
+        timeout,
         url: `https:${cdnUrl}oc-client/${ocClientVersion}/server.js`
       }, (err, res) => {
         expect(err).to.equal(403);
