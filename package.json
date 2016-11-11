@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "An utility to test an OpenComponent Registry is setup and secured correctly",
   "bin": {
-    "oc-migrate": "./cli.js"
+    "oc-registry-test": "./cli.js"
   },
   "repository": {
     "type": "git",
