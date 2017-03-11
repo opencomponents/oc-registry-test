@@ -118,8 +118,8 @@ describe(`When connecting to registry ${url}`, () => {
       request({
         timeout,
         url: `https:${cdnUrl}oc-client/${ocClientVersion}/server.js`
-      }, (err, res) => {
-        expect(err).to.equal(403);
+      }, (err, res, details) => {
+        expect(err || details.response.statusCode).to.equal(403);
         done();
       });
     });
