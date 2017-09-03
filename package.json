@@ -1,6 +1,6 @@
 {
   "name": "oc-registry-test",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "An utility to test an OpenComponent Registry is setup and secured correctly",
   "bin": {
     "oc-registry-test": "./cli.js"
