@@ -11,19 +11,19 @@ const printUsage = () => {
 }
 
 const getParams = () => {
-  var opts = {
+  let opts = {
     boolean: true,
     default: {
       http: false,
       help: false
     }
   };
-  var argv = require('minimist')(process.argv.slice(2),opts);
+  let argv = require('minimist')(process.argv.slice(2),opts);
 
   if (argv._.length === 0 || argv.help){
     printUsage();
     process.exit(1);
-  };
+  }
 
   return argv;
 };
