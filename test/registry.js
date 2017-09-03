@@ -3,16 +3,33 @@
 const expect = require('chai').expect;
 const request = require('minimal-request');
 
-const getParams = () => {
-  if(process.argv.length < 3){
-    console.log('Usage: oc-registry-test https://your-registry-url.domain.com');
-    process.exit(1);
-  }
+const printUsage = () => {
+  console.log('\nUsage: oc-registry-test <registry-url> <options>');
+  console.log('\nwhere <registry-url> is your registry url, e.g. https://your-registry-url.domain.com');
+  console.log('\nOptions:\n\t--http\tCheck against http as well as https.');
+  console.log('\n\t--help\tDisplay this help text\n')
+}
 
-  return (process.argv[2]);
+const getParams = () => {
+  var opts = {
+    boolean: true,
+    default: {
+      http: false,
+      help: false
+    }
+  };
+  var argv = require('minimist')(process.argv.slice(2),opts);
+
+  if (argv._.length === 0 || argv.help){
+    printUsage();
+    process.exit(1);
+  };
+
+  return argv;
 };
 
-let url = getParams();
+let url = getParams()._[0];
+let httpCheck = getParams().http;
 
 if(url.slice(-1) !== '/'){
   url = `${url}/`;
@@ -23,20 +40,22 @@ const json = true;
 
 describe(`When connecting to registry ${url}`, () => {
 
-  it('should connect via http', (done) => {
-    
-    request({
-      json, timeout,
-      url: url.replace('https://', 'http://')
-    }, (err, res) => {
-      expect(err).to.be.null;
-      expect(res.type).to.equal('oc-registry');
-      done();
+  if (httpCheck) {
+    it('should connect via http', (done) => {
+
+      request({
+        json, timeout,
+        url: url.replace('https://', 'http://')
+      }, (err, res) => {
+        expect(err).to.be.null;
+        expect(res.type).to.equal('oc-registry');
+        done();
+      });
     });
-  });
+  }
 
   it('should connect via https', (done) => {
-    
+
     request({
       json, timeout,
       url: url.replace('http://', 'https://')
@@ -48,7 +67,7 @@ describe(`When connecting to registry ${url}`, () => {
   });
 
   it('should be able to serve rendered components', (done) => {
-    
+
     request({
       json, timeout,
       url: `${url}oc-client`
@@ -60,7 +79,7 @@ describe(`When connecting to registry ${url}`, () => {
   });
 
   it('should be able to serve unrendered components', (done) => {
-    
+
     request({
       json, timeout,
       headers: {
@@ -92,16 +111,18 @@ describe(`When connecting to registry ${url}`, () => {
       });
     });
 
-    it('should connect via http', (done) => {
-      request({
-        json, timeout,
-        url: `http:${cdnUrl}oc-client/${ocClientVersion}/package.json`
-      }, (err, res) => {
-        expect(err).to.be.null;
-        expect(res.name).to.equal('oc-client');
-        done();
+    if (httpCheck) {
+      it('should connect via http', (done) => {
+        request({
+          json, timeout,
+          url: `http:${cdnUrl}oc-client/${ocClientVersion}/package.json`
+        }, (err, res) => {
+          expect(err).to.be.null;
+          expect(res.name).to.equal('oc-client');
+          done();
+        });
       });
-    });
+    }
 
     it('should connect via https', (done) => {
       request({
