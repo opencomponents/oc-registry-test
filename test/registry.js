@@ -15,6 +15,7 @@ const getParams = () => {
     boolean: true,
     default: {
       http: false,
+      httponly: false,
       help: false
     }
   };
@@ -30,6 +31,7 @@ const getParams = () => {
 
 let url = getParams()._[0];
 let httpCheck = getParams().http;
+let httpOnly = getParams().httponly;
 
 if(url.slice(-1) !== '/'){
   url = `${url}/`;
@@ -40,7 +42,7 @@ const json = true;
 
 describe(`When connecting to registry ${url}`, () => {
 
-  if (httpCheck) {
+  if (httpCheck || httpOnly) {
     it('should connect via http', (done) => {
 
       request({
@@ -54,17 +56,19 @@ describe(`When connecting to registry ${url}`, () => {
     });
   }
 
-  it('should connect via https', (done) => {
+  if (!httpOnly) {
+    it('should connect via https', (done) => {
 
-    request({
-      json, timeout,
-      url: url.replace('http://', 'https://')
-    }, (err, res) => {
-      expect(err).to.be.null;
-      expect(res.type).to.equal('oc-registry');
-      done();
+      request({
+        json, timeout,
+        url: url.replace('http://', 'https://')
+      }, (err, res) => {
+        expect(err).to.be.null;
+        expect(res.type).to.equal('oc-registry');
+        done();
+      });
     });
-  });
+  }
 
   it('should be able to serve rendered components', (done) => {
 
@@ -111,7 +115,7 @@ describe(`When connecting to registry ${url}`, () => {
       });
     });
 
-    if (httpCheck) {
+    if (httpCheck || httpOnly) {
       it('should connect via http', (done) => {
         request({
           json, timeout,
@@ -124,25 +128,42 @@ describe(`When connecting to registry ${url}`, () => {
       });
     }
 
-    it('should connect via https', (done) => {
-      request({
-        json, timeout,
-        url: `https:${cdnUrl}oc-client/${ocClientVersion}/package.json`
-      }, (err, res) => {
-        expect(err).to.be.null;
-        expect(res.name).to.equal('oc-client');
-        done();
+    if (!httpOnly) {
+      it('should connect via https', (done) => {
+        request({
+          json, timeout,
+          url: `https:${cdnUrl}oc-client/${ocClientVersion}/package.json`
+        }, (err, res) => {
+          expect(err).to.be.null;
+          expect(res.name).to.equal('oc-client');
+          done();
+        });
       });
-    });
+    }
 
-    it('should not be able to access protected source-code', (done) => {
-      request({
-        timeout,
-        url: `https:${cdnUrl}oc-client/${ocClientVersion}/server.js`
-      }, (err, res, details) => {
-        expect(err || details.response.statusCode).to.equal(403);
-        done();
+    if (httpCheck || httpOnly) {
+      it('should not be able to access protected source-code', (done) => {
+        request({
+          timeout,
+          url: `http:${cdnUrl}oc-client/${ocClientVersion}/server.js`
+        }, (err, res, details) => {
+          expect(err || details.response.statusCode).to.equal(403);
+          done();
+        });
       });
-    });
+    }
+
+    if (!httpOnly) {
+      it('should not be able to access protected source-code', (done) => {
+        request({
+          timeout,
+          url: `https:${cdnUrl}oc-client/${ocClientVersion}/server.js`
+        }, (err, res, details) => {
+          expect(err || details.response.statusCode).to.equal(403);
+          done();
+        });
+      });
+    }
+
   });
 });
